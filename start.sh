@@ -8,9 +8,15 @@ set -e
 
 LABX_PASSWORD="${LABX_PASSWORD:-labx@123}"
 
+export PASSWORD="$LABX_PASSWORD"
+
+# ==================================================
+# Header
+# ==================================================
+
 echo ""
 echo "=========================================="
-echo "        LabX Python Environment"
+echo "          LabX Python Environment"
 echo "=========================================="
 echo ""
 
@@ -23,7 +29,7 @@ which python
 
 echo ""
 echo "Starting JupyterLab..."
-echo "Starting Web VS Code..."
+echo "Starting LabX-Server..."
 echo ""
 
 # ==================================================
@@ -32,21 +38,24 @@ echo ""
 
 mkdir -p /root/.jupyter
 
-python -c "
-from jupyter_server.auth import passwd
+LABX_PASSWORD="$LABX_PASSWORD" python -c '
+import os
 from pathlib import Path
+from jupyter_server.auth import passwd
 
-password_hash = passwd('$LABX_PASSWORD')
+password = os.environ["LABX_PASSWORD"]
+password_hash = passwd(password)
 
-Path('/root/.jupyter/jupyter_server_config.py').write_text(
-    'c.ServerApp.password = ' + repr(password_hash) + '\n'
+Path("/root/.jupyter/jupyter_server_config.py").write_text(
+    "c.ServerApp.password = " + repr(password_hash) + "\n"
 )
-"
+'
 
 # ==================================================
 # JupyterLab
-# Container port: 8888
-# Host port: 5959
+#
+# Container: 8888
+# Host:      5959
 # ==================================================
 
 jupyter lab \
@@ -60,20 +69,21 @@ jupyter lab \
 JUPYTER_PID=$!
 
 # ==================================================
-# Web VS Code
-# Container port: 8080
-# Host port: 5960
+# LabX-Server
+#
+# Container: 8080
+# Host:      5960
 # ==================================================
 
-export PASSWORD="$LABX_PASSWORD"
-
-code-server \
+LabX-Server \
     --bind-addr 0.0.0.0:8080 \
     --auth password \
+    --app-name "LabX-Server" \
+    --i18n /etc/labx/i18n.json \
     /workspace \
-    > /tmp/code-server.log 2>&1 &
+    > /tmp/labx-server.log 2>&1 &
 
-CODE_SERVER_PID=$!
+LABX_SERVER_PID=$!
 
 # ==================================================
 # Wait for services
@@ -93,12 +103,12 @@ echo "  $(python --version 2>&1)"
 echo ""
 echo "JupyterLab:"
 echo "  http://localhost:5959"
-echo "  Password: labx@123"
+echo "  Password: ${LABX_PASSWORD}"
 
 echo ""
-echo "Web VS Code:"
+echo "LabX-Server:"
 echo "  http://localhost:5960"
-echo "  Password: labx@123"
+echo "  Password: ${LABX_PASSWORD}"
 
 echo ""
 echo "Workspace:"
@@ -116,13 +126,15 @@ while true; do
 
     if ! kill -0 "$JUPYTER_PID" 2>/dev/null; then
         echo "ERROR: JupyterLab stopped."
+        echo ""
         cat /tmp/jupyter.log
         exit 1
     fi
 
-    if ! kill -0 "$CODE_SERVER_PID" 2>/dev/null; then
-        echo "ERROR: code-server stopped."
-        cat /tmp/code-server.log
+    if ! kill -0 "$LABX_SERVER_PID" 2>/dev/null; then
+        echo "ERROR: LabX-Server stopped."
+        echo ""
+        cat /tmp/labx-server.log
         exit 1
     fi
 
