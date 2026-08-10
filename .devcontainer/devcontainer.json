@@ -1,0 +1,43 @@
+{
+  "name": "LabX (Python 3.13.14)",
+
+  // Swap to "ghcr.io/SahajIVVIX-1/labx:latest-cuda" for the GPU variant,
+  // and add "runArgs": ["--gpus", "all"] below.
+  "image": "ghcr.io/SahajIVVIX-1/labx:latest",
+
+  // Pin a specific version for rollback instead of "latest", e.g.:
+  // "image": "ghcr.io/SahajIVVIX-1/labx:v1.0.0",
+
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  "remoteUser": "labx",
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": false,
+        "jupyter.kernels.filter": [
+          {
+            "path": "/usr/local/bin/python",
+            "type": "pythonEnvironment"
+          }
+        ]
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-python.debugpy"
+      ]
+    }
+  },
+
+  "forwardPorts": [8888],
+
+  // Uncomment for the GPU image variant (requires NVIDIA Container Toolkit
+  // on the host, and only works on Windows/Linux hosts — not macOS):
+  // "runArgs": ["--gpus", "all"],
+
+  "postStartCommand": "python --version"
+}
