@@ -1,6 +1,6 @@
 # =============================================================================
 # LabX Portable Python Runtime — GPU / CUDA variant
-# Python 3.13.14, Linux, CUDA 12.6, Jupyter, VS Code Dev Containers ready
+# Python 3.11.9, Linux, CUDA 12.6, Jupyter, VS Code Dev Containers ready
 #
 # Requires on the host: NVIDIA driver + NVIDIA Container Toolkit
 # (Windows: via WSL2; Linux: native; macOS: not supported, no NVIDIA GPUs)
@@ -10,16 +10,14 @@
 FROM nvidia/cuda:12.6.0-cudnn-devel-ubuntu24.04 AS base
 
 LABEL org.opencontainers.image.title="labx-cuda" \
-      org.opencontainers.image.description="LabX portable Python 3.13.14 runtime (CUDA 12.6)" \
+      org.opencontainers.image.description="LabX portable Python 3.11.9 runtime (CUDA 12.6)" \
       org.opencontainers.image.source="https://github.com/SahajIVVIX-1/labx"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ---- System / native dependencies ------------------------------------------
 # The nvidia/cuda base image does not include Python. We install Python
-# 3.13.14 via the deadsnakes PPA. If your build date is far enough past this
-# doc that deadsnakes no longer carries the exact 3.13.14 patch, fall back to
-# building CPython 3.13.14 from source (see note at bottom of this file).
+# 3.11.9 via the deadsnakes PPA.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         software-properties-common \
         build-essential \
@@ -33,16 +31,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libgomp1 \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y --no-install-recommends \
-        python3.13=3.13.14* \
-        python3.13-dev=3.13.14* \
-        python3.13-venv=3.13.14* \
-        python3.13-distutils \
+        python3.11=3.11.9* \
+        python3.11-dev=3.11.9* \
+        python3.11-venv=3.11.9* \
+        python3.11-distutils \
     && rm -rf /var/lib/apt/lists/*
 
-# Make python3.13 the default `python` / `python3` / `pip` in this image
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1 \
-    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13
+# Make python3.11 the default `python` / `python3` / `pip` in this image
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
+    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 
 # ---- Non-root user ----------------------------------------------------------
 ARG USERNAME=labx
@@ -59,9 +57,7 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements-linux.txt
 
 # torch / torchvision / torchaudio: CUDA-enabled build matching the CUDA 12.6
-# runtime above. Version bumped from your original 2.5.1+cu121 pin because
-# PyTorch only added Python 3.13 support starting in the 2.6.0 release, and
-# cu121 wheels are no longer the current CUDA line — matched to cu126 here.
+# runtime above.
 RUN pip install --no-cache-dir \
         torch==2.6.0+cu126 \
         torchvision==0.21.0+cu126 \
@@ -71,7 +67,7 @@ RUN pip install --no-cache-dir \
 # TensorFlow's CUDA extras (bundles matching cuDNN/cuBLAS via pip)
 RUN pip install --no-cache-dir "tensorflow[and-cuda]==2.20.0"
 
-RUN python -m ipykernel install --name labx-python-gpu --display-name "LabX GPU (Python 3.13.14)"
+RUN python -m ipykernel install --name labx-python-gpu --display-name "LabX GPU (Python 3.11.9)"
 
 RUN mkdir -p /workspace && chown -R ${USERNAME}:${USERNAME} /workspace
 WORKDIR /workspace

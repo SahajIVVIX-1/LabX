@@ -1,5 +1,5 @@
 {
-  "name": "LabX (Python 3.13.14)",
+  "name": "LabX (Python 3.11.9)",
 
   // Swap to "ghcr.io/SahajIVVIX-1/labx:latest-cuda" for the GPU variant,
   // and add "runArgs": ["--gpus", "all"] below.

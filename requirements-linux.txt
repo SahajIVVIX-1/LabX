@@ -1,6 +1,6 @@
-# Auto-generated for LabX Docker image - Linux / Python 3.13.14
+# Auto-generated for LabX Docker image - Linux / Python 3.11.9
 # Windows-only and GUI/desktop-automation packages removed.
-# torch / torchvision / torchaudio installed separately (see Dockerfile) - version bumped to 2.6+ for Python 3.13 support.
+# torch / torchvision / torchaudio installed separately (see Dockerfile).
 
 absl-py==2.3.1
 accelerate==1.12.0

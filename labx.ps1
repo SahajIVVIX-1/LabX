@@ -32,7 +32,7 @@ $FullImage = "${Image}:${Tag}"
 
 function Show-Usage {
 @"
-labx — run things inside the LabX Docker Python 3.13.14 runtime
+labx — run things inside the LabX Docker Python 3.11.9 runtime
 
 Usage:
   labx python <script.py> [args...]
