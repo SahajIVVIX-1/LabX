@@ -60,7 +60,7 @@ Path("/root/.jupyter/jupyter_server_config.py").write_text(
 
 jupyter lab \
     --ip=0.0.0.0 \
-    --port=8888 \
+    --port=5959 \
     --no-browser \
     --allow-root \
     --ServerApp.password_required=True \
@@ -76,7 +76,7 @@ JUPYTER_PID=$!
 # ==================================================
 
 LabX-Server \
-    --bind-addr 0.0.0.0:8080 \
+    --bind-addr 0.0.0.0:5960 \
     --auth password \
     --app-name "LabX-Server" \
     --i18n /etc/labx/i18n.json \

@@ -48,14 +48,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m pip install --upgrade pip
 
 # ==================================================
+# Python packages
+# ==================================================
+
+COPY requirements.txt /tmp/requirements.txt
+
+RUN pip install --no-cache-dir \
+    -r /tmp/requirements.txt
+
+RUN rm -f /tmp/requirements.txt
+
+# ==================================================
 # Jupyter
 # ==================================================
 
 RUN pip install \
-    jupyterlab \
+    "jupyterlab==4.6.2" \
     notebook \
     ipykernel \
-    jupyterlab-tailwind-theme
+    jupyterlab-simpledark
 
 # ==================================================
 # JupyterLab default settings
@@ -63,8 +74,21 @@ RUN pip install \
 
 RUN mkdir -p /usr/local/share/jupyter/lab/settings
 
-COPY jupyter/override.json \
+COPY jupyter/overrides.json \
     /usr/local/share/jupyter/lab/settings/overrides.json
+
+# ==================================================
+# Node.js 24
+# ==================================================
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && node --version \
+    && npm --version \
+    && rm -rf /var/lib/apt/lists/*
 
 # ==================================================
 # Register LabX Python kernel
@@ -110,7 +134,7 @@ RUN set -eux; \
 COPY branding/logo.png /tmp/labx-logo.png
 
 # ==================================================
-# Locate code-server branding directories
+# LabX branding
 # ==================================================
 
 RUN set -eux; \
@@ -134,8 +158,20 @@ RUN set -eux; \
     echo "========================================"; \
     \
     cp /tmp/labx-logo.png "$MEDIA_DIR/labx-logo.png"; \
+    \
     cp /tmp/labx-logo.png "$MEDIA_DIR/pwa-icon-192.png"; \
     cp /tmp/labx-logo.png "$MEDIA_DIR/pwa-icon-512.png"; \
+    cp /tmp/labx-logo.png "$MEDIA_DIR/pwa-icon-maskable-192.png"; \
+    cp /tmp/labx-logo.png "$MEDIA_DIR/pwa-icon-maskable-512.png"; \
+    \
+    cp /tmp/labx-logo.png "$MEDIA_DIR/favicon.png"; \
+    \
+    LOGO_B64="$(base64 -w 0 /tmp/labx-logo.png)"; \
+    printf '%s' \
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><image href=\"data:image/png;base64,$LOGO_B64\" x=\"4\" y=\"4\" width=\"504\" height=\"504\" preserveAspectRatio=\"xMidYMid meet\"/></svg>" \
+    > "$MEDIA_DIR/favicon.svg"; \
+    \
+    cp "$MEDIA_DIR/favicon.svg" "$MEDIA_DIR/favicon-dark-support.svg"; \
     \
     rm -f /tmp/labx-logo.png
 
@@ -214,16 +250,16 @@ RUN chmod +x /usr/local/bin/start.sh
 # Ports
 #
 # Container:
-#   8888 -> JupyterLab
-#   8080 -> LabX-Server
+# 5959 -> JupyterLab
+# 5960 -> LabX-Server
 #
 # Host:
-#   5959 -> JupyterLab
-#   5960 -> LabX-Server
+# 5959 -> JupyterLab
+# 5960 -> LabX-Server
 # ==================================================
 
-EXPOSE 8888
-EXPOSE 8080
+EXPOSE 5959
+EXPOSE 5960
 
 # ==================================================
 # Start
