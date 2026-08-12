@@ -6,9 +6,6 @@ matplotlib
 seaborn
 plotly
 scikit-learn
-xgboost
-lightgbm
-catboost
 opencv-python
 Pillow
 scikit-image
@@ -19,14 +16,7 @@ gensim
 transformers
 tokenizers
 sentencepiece
-torch
-torchvision
-torchaudio
-tensorflow
 keras
-jupyterlab
-notebook
-ipykernel
 ipywidgets
 tqdm
 joblib
